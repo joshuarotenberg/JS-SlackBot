@@ -1,18 +1,7 @@
 module.exports = (bot) => {
-    bot.hear(/Hello!/, (response) => {
-      return response.send("Hey back!");
-    });
-  
-      bot.respond(/Hey! My name is ([A-z]+)/, (response) => {
-        // Pull out name from the above REGEX match group
-        const name = response.match;
 
-        console.log(name[1]);
-    
-        // Reply using the name from the REGEX match
-        return response.reply(`Hello ${name[1]}! Nice to meet you`);
-      });
-
+  //////////////
+  // 1. Responds to "What time is it"...
 
     bot.hear(/(W|w)hat time is it/, (response) => {
       const time = () => {
@@ -29,18 +18,23 @@ module.exports = (bot) => {
         return(`${hours}:${mins} ${ampm}`);
 
       }
-    
 
       return response.send(`It's always Wine O'Clock somewhere!!
       But it looks like it's really ${time()} wherever you are...`);
     });
 
+    //////////////
+    // 2. reponds with movie details if you ask "Tell me about the movie ..."
+
     bot.respond(/Tell me about the movie ([\w ]+[^\W_]+)/, (response) => {
       const movie = response.match;
 
       response.http("http://www.omdbapi.com/?i=tt3896198&apikey=58a43c4f&t=" + movie[1])
-        .get()(function(err, res, body) {
+      
+      .get()(function(err, res, body) {
           json = JSON.parse(body);    
+
+          // Grab rotten tomatoes score
           
           const rottenScore = () => {
             const preferredRater = "Rotten Tomatoes"
@@ -49,25 +43,76 @@ module.exports = (bot) => {
                 return rater.Source === preferredRater;
             });
 
+            // turn score into integer
+
             if(data) {
-              console.log( 'found' );
-              console.log(data.Value); // This is entire object i.e. `item` not boolean
+              const score = parseInt(data.Value, 10);
+              return(score)
             } else {
-              "Might have been too old for RT"
+              return(``);
+            }
+          }
+
+
+          const rottenText = () => {
+            if (rottenScore() != "" ) {
+              return (`scored a ${rottenScore()}% on Rotten Tomatoes and`)
+            } else {
+              
             }
 
-            return(data.Value);
+          }
+
+          //uses logic to switch greeting based on the Rotten Tomatoes Score.
+
+          const greeting = () => {
+            if (rottenScore() < 50) {
+              return ("Meh.");
+            } else {
+              return("Great Choice!!");
+            }
+          }
+
+          // if the movie has adwards it's added to response.
+
+          const awards = () => {
+            let movieAwards = json.Awards;
+            if (typeof movieAwards != "undefined") {
+              return(`This movie was so good that some of it's accolades included: ${json.Awards}`);
+            } else {
+              return (``);
+            }
           }
           
 
           if (err) {
             return (`Error: ${err}`)
           } 
-          
-          return response.reply(`Great Choice!! ${json.Title} has a Rotten Tomatoes score of ${rottenScore()} and is about ${json.Plot} This movie was so good that it ${json.Awards}`); 
+        
+      
+        return response.reply(`${greeting()} ${json.Title} ${rottenText()} it's about: ${json.Plot} ${awards()} ${json.Poster}`); 
+
       });
     });
 
+    ///////////
+    // 3. Is there class today? 
 
+    bot.hear(/(I|i)s there class today/, (response) => {
+
+      const weekDay = new Date().toLocaleString('en-us', {weekday:'long'})
+
+      const classToday = () => {
+        if (weekDay == "Friday" || "Saturday" || "Sunday" || "Monday") {
+          return(`Not today!. Your next class is Tuesday.`);
+        } else if (weekDay == "Wednesday") {
+          return(`Nope. The next class is Tomorrow.`);
+        } else {
+          return(`Hell yeah!!`);
+        }
+      }
+
+      return response.send(classToday());
+    });
 
   }
