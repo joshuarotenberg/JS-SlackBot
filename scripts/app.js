@@ -59,7 +59,7 @@ module.exports = (bot) => {
       const movie = response.match;
       const lastMovie = bot.brain.set(BRAIN_KEY, movie[1]);
       
-      response.http("http://www.omdbapi.com/?i=tt3896198&apikey=58a43c4f&t=" + movie[1])
+      response.http("http://www.omdbapi.com/?i=tt3896198&apikey=58a43c4f&type=movie&t=" + movie[1])
       
       .get()(function(err, res, body) {
           json = JSON.parse(body);    
@@ -107,10 +107,10 @@ module.exports = (bot) => {
 
           const awards = () => {
             let movieAwards = json.Awards;
-            if (typeof movieAwards != "undefined") {
+            if (typeof movieAwards != "undefined" && rottenScore() > 50) {
               return(`This movie was so good that some of it's accolades included: ${json.Awards}`);
             } else {
-              return (``);
+              return (`This movie wasn't so great, but still some how grabbed some accolades: ${json.Awards}`);
             }
           }
           
@@ -132,7 +132,7 @@ module.exports = (bot) => {
       const movie = response.match;
       const grabMovie = bot.brain.get(BRAIN_KEY, movie[1]);
 
-      response.http("http://www.omdbapi.com/?i=tt3896198&apikey=58a43c4f&t=" + grabMovie)
+      response.http("http://www.omdbapi.com/?i=tt3896198&apikey=58a43c4f&type=movie&t=" + grabMovie)
 
       .get()(function(err, res, body) {
         json = JSON.parse(body); 
