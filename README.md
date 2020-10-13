@@ -48,4 +48,7 @@ A super fun slackbot that can do various things. It can respond to a question ab
 	 - responds with: 
 		 - title, year, writer, director, actors...
 
- 
+### Unsolved Issues
+
+- Regex for title needs work. apostrophes will break it, maybe on the API side?
+- need to add logic if reviews don't exist

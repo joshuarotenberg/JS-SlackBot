@@ -77,10 +77,8 @@ module.exports = (bot) => {
 
             if(data) {
               const score = parseInt(data.Value, 10);
-              return(score)
-            } else {
-              return(``);
-            }
+              return(score);
+            } 
           }
 
 
