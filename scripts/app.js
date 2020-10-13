@@ -1,5 +1,8 @@
 module.exports = (bot) => {
 
+  const BRAIN_KEY = 'title';
+
+
   //////////////
   // 1. Responds to "What time is it"...
 
@@ -23,16 +26,40 @@ module.exports = (bot) => {
       But it looks like it's really ${time()} wherever you are...`);
     });
 
+    ///////////
+    // 2. Is there class today? 
+
+    bot.hear(/(I|i)s there class today/, (response) => {
+
+      const weekDay = new Date().toLocaleString('en-us', {weekday:'long'})
+
+      const classToday = () => {
+        if (weekDay == "Friday" || "Saturday" || "Sunday" || "Monday") {
+          return(`Not today!. Your next class is Tuesday.`);
+        } else if (weekDay == "Wednesday") {
+          return(`Nope. The next class is Tomorrow.`);
+        } else {
+          return(`Hell yeah!!`);
+        }
+      }
+
+      return response.send(classToday());
+    });
+
     //////////////
-    // 2. reponds with movie details if you ask "Tell me about the movie ..."
+    // 3. reponds with movie details if you ask "Tell me about the movie ..."
 
     bot.respond(/Tell me about the movie ([\w ]+[^\W_]+)/, (response) => {
       const movie = response.match;
 
+      const lastMovie = bot.brain.set(BRAIN_KEY, movie[1]);
+      
       response.http("http://www.omdbapi.com/?i=tt3896198&apikey=58a43c4f&t=" + movie[1])
       
       .get()(function(err, res, body) {
           json = JSON.parse(body);    
+
+          const director = json.Director;
 
           // Grab rotten tomatoes score
           
@@ -92,27 +119,34 @@ module.exports = (bot) => {
       
         return response.reply(`${greeting()} ${json.Title} ${rottenText()} it's about: ${json.Plot} ${awards()} ${json.Poster}`); 
 
+        
+        
       });
+
+      bot.hear(/(T|t)ell me more/, (response) => {
+
+        const grabMovie = bot.brain.get(BRAIN_KEY, lastMovie);
+  
+        response.http("http://www.omdbapi.com/?i=tt3896198&apikey=58a43c4f&t=" + grabMovie)
+  
+        .get()(function(err, res, body) {
+          json = JSON.parse(body); 
+          
+          if (err) {
+            return (`Error: ${err}`)
+          } else {
+          }
+        });
+
+        return response.reply(`Sure thing! ${json.Title} was released in ${json.Year}, was written by ${json.Writer}, directed by ${json.Director}, and starred ${json.Actors}.`);
+  
+      });
+  
     });
 
-    ///////////
-    // 3. Is there class today? 
+    
+    
 
-    bot.hear(/(I|i)s there class today/, (response) => {
-
-      const weekDay = new Date().toLocaleString('en-us', {weekday:'long'})
-
-      const classToday = () => {
-        if (weekDay == "Friday" || "Saturday" || "Sunday" || "Monday") {
-          return(`Not today!. Your next class is Tuesday.`);
-        } else if (weekDay == "Wednesday") {
-          return(`Nope. The next class is Tomorrow.`);
-        } else {
-          return(`Hell yeah!!`);
-        }
-      }
-
-      return response.send(classToday());
-    });
+   
 
   }
