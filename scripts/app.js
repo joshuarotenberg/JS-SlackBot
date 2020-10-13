@@ -2,7 +2,6 @@ module.exports = (bot) => {
 
   const BRAIN_KEY = 'title';
 
-
   //////////////
   // 1. Responds to "What time is it"...
 
@@ -51,7 +50,6 @@ module.exports = (bot) => {
 
     bot.respond(/Tell me about the movie ([\w ]+[^\W_]+)/, (response) => {
       const movie = response.match;
-
       const lastMovie = bot.brain.set(BRAIN_KEY, movie[1]);
       
       response.http("http://www.omdbapi.com/?i=tt3896198&apikey=58a43c4f&t=" + movie[1])
@@ -82,10 +80,10 @@ module.exports = (bot) => {
 
 
           const rottenText = () => {
-            if (rottenScore() != "" ) {
-              return (`scored a ${rottenScore()}% on Rotten Tomatoes and`)
+            if (rottenScore() != "" && typeof rottenScore != "undefined" ) {
+              return (`scored a ${rottenScore()}% on Rotten Tomatoes and it's about`)
             } else {
-              
+              return(`is about`);
             }
 
           }
@@ -117,34 +115,32 @@ module.exports = (bot) => {
           } 
         
       
-        return response.reply(`${greeting()} ${json.Title} ${rottenText()} it's about: ${json.Plot} ${awards()} ${json.Poster}`); 
+        return response.reply(`${greeting()} ${json.Title} ${rottenText()} ${json.Plot} ${awards()} ${json.Poster}`); 
 
-        
-        
       });
 
-      bot.hear(/(T|t)ell me more/, (response) => {
-
-        const grabMovie = bot.brain.get(BRAIN_KEY, lastMovie);
-  
-        response.http("http://www.omdbapi.com/?i=tt3896198&apikey=58a43c4f&t=" + grabMovie)
-  
-        .get()(function(err, res, body) {
-          json = JSON.parse(body); 
-          
-          if (err) {
-            return (`Error: ${err}`)
-          } else {
-          }
-        });
-
-        return response.reply(`Sure thing! ${json.Title} was released in ${json.Year}, was written by ${json.Writer}, directed by ${json.Director}, and starred ${json.Actors}.`);
-  
-      });
+      
   
     });
 
-    
+    bot.hear(/(T|t)ell me more/, (response) => {
+      const movie = response.match;
+      const grabMovie = bot.brain.get(BRAIN_KEY, movie[1]);
+
+      response.http("http://www.omdbapi.com/?i=tt3896198&apikey=58a43c4f&t=" + grabMovie)
+
+      .get()(function(err, res, body) {
+        json = JSON.parse(body); 
+        
+        if (err) {
+          return (`Error: ${err}`)
+        } else {
+        }
+      });
+
+      return response.send(`Sure thing! ${json.Title} was released in ${json.Year}, was written by ${json.Writer}, directed by ${json.Director}, and starred ${json.Actors}.`);
+
+    });
     
 
    
