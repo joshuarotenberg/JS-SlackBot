@@ -34,7 +34,7 @@ module.exports = (bot) => {
     ///////////
     // 2. Is there class today? 
 
-    bot.hear(/(I|i)s there class today/, (response) => {
+    bot.hear(/(C|c)lass today/, (response) => {
 
       const weekDay = new Date().toLocaleString('en-us', {weekday:'long'})
 
