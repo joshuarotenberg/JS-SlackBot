@@ -10,19 +10,25 @@ module.exports = (bot) => {
 
         const d = new Date();
         let hours = d.getHours();
-        let mins = d.getMinutes();
+        let h = hours;
+        const mins = d.getMinutes();
+
 
         let ampm = "AM";
+
         if(hours >= 12) {
           ampm = "PM"
-        }
+        } 
 
-        return(`${hours}:${mins} ${ampm}`);
+        if(hours > 12) {
+          h = hours - 12;
+        } 
+
+        return(`${h}:${mins} ${ampm}`);
 
       }
 
-      return response.send(`It's always Wine O'Clock somewhere!!
-      But it looks like it's really ${time()} wherever you are...`);
+      return response.send(`It's always Wine O'Clock somewhere!! \n But it looks like it's really ${time()} wherever you are...`);
     });
 
     ///////////
@@ -33,13 +39,14 @@ module.exports = (bot) => {
       const weekDay = new Date().toLocaleString('en-us', {weekday:'long'})
 
       const classToday = () => {
-        if (weekDay == "Friday" || "Saturday" || "Sunday" || "Monday") {
+        if (weekDay == "Friday" || weekDay == "Saturday" || weekDay == "Sunday" ||weekDay ==  "Monday") {
           return(`Not today!. Your next class is Tuesday.`);
         } else if (weekDay == "Wednesday") {
           return(`Nope. The next class is Tomorrow.`);
         } else {
           return(`Hell yeah!!`);
         }
+
       }
 
       return response.send(classToday());
@@ -56,8 +63,6 @@ module.exports = (bot) => {
       
       .get()(function(err, res, body) {
           json = JSON.parse(body);    
-
-          const director = json.Director;
 
           // Grab rotten tomatoes score
           
